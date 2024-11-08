@@ -7,38 +7,52 @@
 
 import UIKit
 
-class CounterViewController: UIViewController {
+final class CounterViewController: UIViewController {
     
-    private var counter: Int = 0
+    private enum CounterAction {
+        case reset
+        case plus
+        case minus(success: Bool)
+    }
+    
+    private var counter: Int = .zero
     private var currentDateString: String = ""
-    @IBOutlet weak var counterLabel: UILabel!
-    @IBOutlet weak var resetButton: UIButton!
-    @IBOutlet weak var plusButton: UIButton!
-    @IBOutlet weak var minusButton: UIButton!
-    @IBOutlet weak var changeLog: UITextView!
+    @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private weak var resetButton: UIButton!
+    @IBOutlet private weak var plusButton: UIButton!
+    @IBOutlet private weak var minusButton: UIButton!
+    @IBOutlet private weak var changeLog: UITextView!
+    
+    private let dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        return dateFormatter
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setUpView()
+        setupView()
     }
 
-    @IBAction func plusButtonDidTap(_ sender: Any) {
+    @IBAction private func plusButtonDidTap(_ sender: Any) {
         buttonDidTap(counterAction: .plus)
     }
     
-    @IBAction func minusButtonDidTap(_ sender: Any) {
+    @IBAction private func minusButtonDidTap(_ sender: Any) {
         let isSuccess: Bool = counter > 0
         buttonDidTap(counterAction: .minus(success: isSuccess))
         
     }
     
-    @IBAction func resetButtonDidTap(_ sender: Any) {
+    @IBAction private func resetButtonDidTap(_ sender: Any) {
         buttonDidTap(counterAction: .reset)
     }
     
     // MARK: Private
     
-    private func setUpView() {
+    private func setupView() {
         counterLabel?.text = "Значение счётчика: \(counter)"
         changeLog?.text = "История изменений:"
         changeLog?.layer.borderColor = UIColor.gray.cgColor
@@ -65,7 +79,7 @@ class CounterViewController: UIViewController {
     }
     
     private func updateChangeLog(counterAction: CounterAction) {
-        let currentDateString = Date.now.dateString
+        let currentDateString = dateFormatter.string(from: Date())
         var changeString = ""
         
         switch counterAction {
@@ -79,21 +93,4 @@ class CounterViewController: UIViewController {
         
         changeLog?.text += "\n \(newCounterChangeRecord)"
     }
-}
-
-private extension Date {
-    var dateString: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        dateFormatter.dateStyle = .short
-        dateFormatter.timeStyle = .short
-
-        return dateFormatter.string(from: self)
-    }
-}
-
-private enum CounterAction {
-    case reset
-    case plus
-    case minus(success: Bool = true)
 }
